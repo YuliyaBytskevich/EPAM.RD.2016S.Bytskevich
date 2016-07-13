@@ -7,70 +7,82 @@ using System.Threading.Tasks;
 
 namespace UserStorage
 {
-    public static class IdentifiersGenerator
+    // TODO: try to make it more useful, fast and remove constant limit :(
+    public class PrimeNumbersGenerator : IIdentifiersGenerator
     {
+        private const int maxNumOfNumbers = 1000;
 
-        public static IEnumerator<int> GetNewId()
+        public void ResetGenerator()
         {
+            GetNewPrimeId().Reset();
+        }
+
+        public int GenerateNewNumber()
+        {
+            bool isPossibleToGetNext = GetNewPrimeId().MoveNext();
+            if (!isPossibleToGetNext)
+            {
+                ResetGenerator();
+                GetNewPrimeId().MoveNext();
+            }
+            return GetNewPrimeId().Current;
+        }
+
+        private IEnumerator<int> GetNewPrimeId()
+        {
+            int limit = ApproximateNthPrime(maxNumOfNumbers);
+            BitArray bits = SieveOfEratosthenes(limit);
+            List<int> primes = new List<int>();
+            for (int i = 0, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
+            {
+                if (bits[i])
+                {
+                    yield return i;
+                    numOfFound++;
+                }
+            }
 
         }
 
-
-
-
-
-
-
-
-        //private class Enumerator : IEnumerator<int>
-        //{
-        //    private int[] elements;
-        //    int position = -1;
-
-        //    public Enumerator(int[] elems)
-        //    {
-        //        elements = elems;
-        //    }
-
-        //    private IEnumerator<int> GetEnumerator()
-        //    {
-        //        return (IEnumerator<int>)this;
-        //    }
-
-        //    public bool MoveNext()
-        //    {
-        //        position++;
-        //        return (position < elements.Length);
-        //    }
-
-        //    public void Reset()
-        //    {
-        //        position = -1;
-        //    }
-
-        //    public void Dispose()
-        //    {
-        //        // DO NOTHING
-        //    }
-
-        //    public int Current
-        //    {
-        //        get
-        //        {
-        //            try
-        //            {
-        //                return elements[position];
-        //            }
-
-        //            catch (IndexOutOfRangeException)
-        //            {
-        //                throw new InvalidOperationException();
-        //            }
-        //        }
-        //    }
-        //    object IEnumerator.Current => Current;
-        //}
-
-
+        private BitArray SieveOfEratosthenes(int limit)
+        {
+            BitArray bits = new BitArray(limit + 1, true);
+            bits[0] = false;
+            bits[1] = false;
+            for (int i = 0; i * i <= limit; i++)
+            {
+                if (bits[i])
+                {
+                    for (int j = i * i; j <= limit; j += i)
+                    {
+                        bits[j] = false;
+                    }
+                }
+            }
+            return bits;
+        }
+        
+        private int ApproximateNthPrime(int nn)
+        {
+            double n = (double)nn;
+            double p;
+            if (nn >= 7022)
+            {
+                p = n * Math.Log(n) + n * (Math.Log(Math.Log(n)) - 0.9385);
+            }
+            else if (nn >= 6)
+            {
+                p = n * Math.Log(n) + n * Math.Log(Math.Log(n));
+            }
+            else if (nn > 0)
+            {
+                p = new int[] { 2, 3, 5, 7, 11 }[nn - 1];
+            }
+            else
+            {
+                p = 0;
+            }
+            return (int)p;
+        }
     }
 }
