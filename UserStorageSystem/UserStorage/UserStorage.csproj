@@ -40,10 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BelorussianUsersValidation.cs" />
+    <Compile Include="BelarusianUsersValidation.cs" />
     <Compile Include="Gender.cs" />
-    <Compile Include="IdentifiersGenerator.cs" />
-    <Compile Include="IEntity.cs" />
+    <Compile Include="PrimeNumbersGenerator.cs" />
     <Compile Include="IIdentifiersGenerator.cs" />
     <Compile Include="InMemoryUserStorage.cs" />
     <Compile Include="IUserStorage.cs" />

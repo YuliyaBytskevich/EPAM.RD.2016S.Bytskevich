@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UserStorage
 {
-    public class BelorussianUsersValidation: IUserValidation
+    public class BelarusianUsersValidation: IUserValidation
     {
         private Regex firstNameRegex = new Regex("[A-Z][a-z]+");
         private Regex lastNameRegex = new Regex("[A-Z][a-z]+(-[A-Z][a-z]+)?");
@@ -36,6 +36,8 @@ namespace UserStorage
 
         public bool VisaRecordsAreValid(VisaRecord[] visasApplicants)
         {
+            if (visasApplicants == null)
+                return true;
             bool result = true;
             foreach(var visa in visasApplicants)
             {

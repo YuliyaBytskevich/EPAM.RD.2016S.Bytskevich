@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,21 +12,27 @@ namespace UserStorage
     public class PrimeNumbersGenerator : IIdentifiersGenerator
     {
         private const int maxNumOfNumbers = 1000;
+        private IEnumerator<int> numbers;
+        
+        public PrimeNumbersGenerator()
+        {
+            numbers = GetNewPrimeId(); 
+        } 
 
         public void ResetGenerator()
         {
-            GetNewPrimeId().Reset();
+            numbers = GetNewPrimeId();
         }
 
         public int GenerateNewNumber()
         {
-            bool isPossibleToGetNext = GetNewPrimeId().MoveNext();
+            bool isPossibleToGetNext = numbers.MoveNext();
             if (!isPossibleToGetNext)
             {
                 ResetGenerator();
-                GetNewPrimeId().MoveNext();
+                numbers.MoveNext();
             }
-            return GetNewPrimeId().Current;
+            return numbers.Current;
         }
 
         private IEnumerator<int> GetNewPrimeId()
@@ -33,7 +40,7 @@ namespace UserStorage
             int limit = ApproximateNthPrime(maxNumOfNumbers);
             BitArray bits = SieveOfEratosthenes(limit);
             List<int> primes = new List<int>();
-            for (int i = 0, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
+            for (int i = 1, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
             {
                 if (bits[i])
                 {

@@ -84,5 +84,10 @@ namespace UserStorage
             users.RemoveAll(x => x.Id == id);
         }
 
+        public int GetUsersCount()
+        {
+            return users.Count();
+        }
+
     }
 }

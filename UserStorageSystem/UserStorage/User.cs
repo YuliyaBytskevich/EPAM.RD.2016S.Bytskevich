@@ -13,6 +13,18 @@ namespace UserStorage
         public Gender Gender { get; set; }
         public VisaRecord[] Visas { get; }
 
+        public User() { }
+
+        public User(string firstname, string lastname, DateTime dateOfBirth, string personalId, Gender gender, params VisaRecord[] visas)
+        {
+            FirstName = firstname;
+            LastName = lastname;
+            DateOfBirth = dateOfBirth;
+            PersonalId = personalId;
+            Gender = gender;
+            Visas = visas;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
