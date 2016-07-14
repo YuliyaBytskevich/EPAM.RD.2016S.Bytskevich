@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace UserStorage
 {
+    [Serializable]
     public class User
     {
         public int Id { get; set; }

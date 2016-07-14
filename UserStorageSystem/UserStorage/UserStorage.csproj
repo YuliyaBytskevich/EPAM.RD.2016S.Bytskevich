@@ -49,12 +49,8 @@
     <Compile Include="IUserValidation.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserStorageValidationExceptions\InvalidDateOfBirthException.cs" />
-    <Compile Include="UserStorageValidationExceptions\InvalidFirstNameException.cs" />
-    <Compile Include="UserStorageValidationExceptions\InvalidLastNameException.cs" />
-    <Compile Include="UserStorageValidationExceptions\InvalidPersonalIdException.cs" />
     <Compile Include="InvalidUserInfoException.cs" />
-    <Compile Include="UserStorageValidationExceptions\InvalidVisaRecordsException.cs" />
+    <Compile Include="UserStorageService.cs" />
     <Compile Include="VisaRecord.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
