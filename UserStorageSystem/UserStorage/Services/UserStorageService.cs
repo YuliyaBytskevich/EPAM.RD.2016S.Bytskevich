@@ -5,21 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Configuration;
 
 namespace UserStorage
 {
-    public class UserStorageService
+    public abstract class UserStorageService
     {
-        private readonly IUserStorage storage;
+        protected readonly IUserStorage storage;
         [Serializable]
-        internal class ServiceState
+        protected internal class ServiceState
         {
             internal int lastGeneratedId;
             internal List<User> users;
         }
-        ServiceState state = null;
+        protected ServiceState state = null;
 
-        public UserStorageService(IUserStorage storage)
+        protected UserStorageService(IUserStorage storage)
         {
             this.storage = storage;
         }
@@ -45,17 +46,13 @@ namespace UserStorage
             }
         }
 
-        public virtual void Add(User user)
-        {
-            user.Id = storage.Add(user);
-            state.users.Add(user);
-            state.lastGeneratedId = user.Id;
-        }
+        public abstract void Add(User user);
 
-        public virtual void Delete(User user)
+        public abstract void Delete(User user);
+
+        public int SearchForUser(params Func<User, bool>[] predicates)
         {
-            storage.Delete(user);
-            state.users.RemoveAll(x => x.Equals(user));
+            return storage.SearchForUser(predicates);
         }
 
     }
