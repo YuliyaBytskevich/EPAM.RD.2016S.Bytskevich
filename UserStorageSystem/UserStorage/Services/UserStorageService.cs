@@ -15,20 +15,27 @@ namespace UserStorage
         [Serializable]
         protected internal class ServiceState
         {
+            internal int serviceId;
             internal int lastGeneratedId;
-            internal List<User> users;
+            internal List<User> users = new List<User>();
+            internal ServiceState() { }
         }
         protected ServiceState state = null;
 
-        protected UserStorageService(IUserStorage storage)
+        protected UserStorageService(int serviceId, IUserStorage storage)
         {
             this.storage = storage;
+            state = new ServiceState();
+            state.serviceId = serviceId;
         }
 
         public void RestoreServiceState()
         {
             var serializer = new XmlSerializer(typeof(ServiceState));
-            using (Stream fStream = new FileStream("test.xml", FileMode.Open))
+            string path = GetStatePathFromSettings();
+            if (path == null)
+                path = string.Format("test_service_{0}.xml", state.serviceId);
+            using (Stream fStream = new FileStream(path, FileMode.Open))
             {
                 state = (ServiceState)serializer.Deserialize(fStream);
             }
@@ -39,7 +46,10 @@ namespace UserStorage
             if (state != null)
             {
                 var serializer = new XmlSerializer(typeof(ServiceState));
-                using (Stream fStream = new FileStream("test.xml", FileMode.Create, FileAccess.Write, FileShare.None))
+                string path = GetStatePathFromSettings();
+                if (path == null)
+                    path = string.Format("test_service_{0}.xml", state.serviceId);
+                using (Stream fStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     serializer.Serialize(fStream, state);
                 }
@@ -50,10 +60,12 @@ namespace UserStorage
 
         public abstract void Delete(User user);
 
+        public abstract string GetStatePathFromSettings();
+
         public int SearchForUser(params Func<User, bool>[] predicates)
         {
             return storage.SearchForUser(predicates);
         }
-
+                
     }
 }

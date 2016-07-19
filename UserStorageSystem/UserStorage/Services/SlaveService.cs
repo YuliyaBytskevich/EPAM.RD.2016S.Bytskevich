@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace UserStorage.Services
 {
     public class SlaveService: UserStorageService
     {
-        public SlaveService (IUserStorage storage): base(storage) { }
+        public SlaveService (int serviceId, IUserStorage storage): base(serviceId, storage) { }
 
         public override void Add(User user)
         {
@@ -40,6 +41,13 @@ namespace UserStorage.Services
             {
                 state.users.Remove(arguments.User);
             }
+        }
+
+        public override string GetStatePathFromSettings()
+        {
+            string key = String.Format("slave_{0}_path", state.serviceId);
+            var appSettings = ConfigurationManager.AppSettings;
+            return appSettings[key] ?? null;
         }
     }
 }
