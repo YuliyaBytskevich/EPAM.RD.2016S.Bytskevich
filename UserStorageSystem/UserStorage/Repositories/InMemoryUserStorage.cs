@@ -1,20 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace UserStorage
 {
+    //[Serializable]
     public class InMemoryUserStorage: IUserStorage
     {
         private List<User> users;
         private readonly IIdentifiersGenerator idGenerator;
 
+        public InMemoryUserStorage()
+        {
+            int i = 10;
+        }
+
         public InMemoryUserStorage(IIdentifiersGenerator generator)
         {
             users = new List<User>();
             idGenerator = generator;
+        }
+
+        protected InMemoryUserStorage(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+            users = (List < User > ) info.GetValue("UsersList", typeof(List<User>));
         }
 
         public int Add(User user, IUserValidation validationRules = null) 
@@ -63,17 +81,29 @@ namespace UserStorage
         public int SearchForUser(params Func<User, bool>[] predicates)
         {
             if (!users.Any())
-                return 0;
-            if (predicates.Count() == 0)
+                return -1;
+            if (!predicates.Any())
                 return users.First().Id;
-            Func<User, bool> commonPredicate = predicates[0];
+            var commonPredicate = predicates[0];
             if (predicates.Count() > 1)
-                foreach (var predicate in predicates)
-                    commonPredicate += predicate;
+                commonPredicate = predicates.Aggregate(commonPredicate, (current, predicate) => current + predicate);
             var foundEntities = users.Where(x => commonPredicate(x));
             return foundEntities.Any() ? foundEntities.First().Id : 0;           
-       }
+        }
 
+        public IEnumerable<int> SearchForUsers(params Func<User, bool>[] predicates)
+        {
+            if (!users.Any())
+                return null;
+            if (!predicates.Any())
+                return users.Select(user => user.Id);
+            var commonPredicate = predicates[0];
+            if (predicates.Count() > 1)
+                commonPredicate = predicates.Aggregate(commonPredicate, (current, predicate) => current + predicate);
+            var foundEntities = users.Where(x => commonPredicate(x));
+            return foundEntities.Any() ? foundEntities.Select(user => user.Id) : new List<int>();
+        }
+        
         public void Delete(User user)
         {
             users.RemoveAll(x => x.Equals(user));
@@ -89,5 +119,30 @@ namespace UserStorage
             return users.Count();
         }
 
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+            info.AddValue("UsersList", users);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
+            users = (List<User>) serializer.Deserialize(reader);
+            
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
+            serializer.Serialize(writer, users);
+        }
     }
 }

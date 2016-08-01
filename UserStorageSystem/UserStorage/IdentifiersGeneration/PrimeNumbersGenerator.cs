@@ -7,17 +7,17 @@ namespace UserStorage
     // TODO: try to make it more useful, fast and remove constant limit :(
     public class PrimeNumbersGenerator : IIdentifiersGenerator
     {
-        private const int maxNumOfNumbers = 1000;
+        private const int maxNumOfNumbers = 10000;
         private IEnumerator<int> numbers;
         
-        public PrimeNumbersGenerator()
+        public PrimeNumbersGenerator(int lastGeneratedNumber = 1)
         {
-            numbers = GetNewPrimeId(); 
+            numbers = GetNewPrimeId(lastGeneratedNumber); 
         } 
 
         public void ResetGenerator()
         {
-            numbers = GetNewPrimeId();
+            numbers = GetNewPrimeId(1);
         }
 
         public int GenerateNewNumber()
@@ -31,12 +31,12 @@ namespace UserStorage
             return numbers.Current;
         }
 
-        private IEnumerator<int> GetNewPrimeId()
+        private IEnumerator<int> GetNewPrimeId(int lastGeneratedNumber)
         {
             int limit = ApproximateNthPrime(maxNumOfNumbers);
             BitArray bits = SieveOfEratosthenes(limit);
             List<int> primes = new List<int>();
-            for (int i = 1, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
+            for (int i = lastGeneratedNumber, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
             {
                 if (bits[i])
                 {

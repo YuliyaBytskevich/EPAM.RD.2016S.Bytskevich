@@ -41,9 +41,9 @@ namespace UserStorage
                     DateOfBirth == user.DateOfBirth &&
                     Gender == user.Gender &&
                     LastName == user.LastName &&
-                    FirstName == user.FirstName &&                   
-                    AllVisasMatch(Visas, user.Visas)                    
-                )? true: false;
+                    FirstName == user.FirstName &&
+                    AllVisasMatch(Visas, user.Visas)
+                );
         }
 
         public override int GetHashCode()

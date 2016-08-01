@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D29FDBD0-6C6D-484D-B3A3-AB613F7106D4}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{798D3597-EEA1-4354-9AC2-993ECD6E249A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UserStorage</RootNamespace>
-    <AssemblyName>UserStorage</AssemblyName>
+    <RootNamespace>UserStorageWcfHosting</RootNamespace>
+    <AssemblyName>UserStorageWcfHosting</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,16 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.5\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,44 +44,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationManager.cs" />
-    <Compile Include="Configurations\ServicesCollection.cs" />
-    <Compile Include="Configurations\ServicesConfigSection.cs" />
-    <Compile Include="Configurations\ServiceElement.cs" />
-    <Compile Include="Services\ForbiddenOperationException.cs" />
-    <Compile Include="Services\IUserStorageService.cs" />
-    <Compile Include="Services\ServiceMessage.cs" />
-    <Compile Include="Services\ServiceState.cs" />
-    <Compile Include="Services\SlaveService.cs" />
-    <Compile Include="Services\UserChangesEventArgs.cs" />
-    <Compile Include="Validation\BelarusianUsersValidation.cs" />
-    <Compile Include="UserEntity\Gender.cs" />
-    <Compile Include="Services\MasterService.cs" />
-    <Compile Include="IdentifiersGeneration\PrimeNumbersGenerator.cs" />
-    <Compile Include="IdentifiersGeneration\IIdentifiersGenerator.cs" />
-    <Compile Include="Repositories\InMemoryUserStorage.cs" />
-    <Compile Include="Repositories\IUserStorage.cs" />
-    <Compile Include="Validation\IUserValidation.cs" />
-    <Compile Include="UserEntity\User.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Validation\InvalidUserInfoException.cs" />
-    <Compile Include="Services\UserStorageService.cs" />
-    <Compile Include="UserEntity\VisaRecord.cs" />
+    <Compile Include="WcfMasterService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <ProjectReference Include="..\UserStorage\UserStorage.csproj">
+      <Project>{d29fdbd0-6c6d-484d-b3a3-ab613f7106d4}</Project>
+      <Name>UserStorage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

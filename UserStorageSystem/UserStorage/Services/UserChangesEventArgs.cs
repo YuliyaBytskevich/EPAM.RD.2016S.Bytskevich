@@ -17,7 +17,7 @@ namespace UserStorage.Services
         }
     }
 
-    public enum Operation
+    public enum Operation1
     {
         Add,
         Remove
