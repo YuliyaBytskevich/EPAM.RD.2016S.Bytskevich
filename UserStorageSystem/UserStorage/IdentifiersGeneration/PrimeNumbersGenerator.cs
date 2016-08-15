@@ -36,7 +36,7 @@ namespace UserStorage
             int limit = ApproximateNthPrime(maxNumOfNumbers);
             BitArray bits = SieveOfEratosthenes(limit);
             List<int> primes = new List<int>();
-            for (int i = lastGeneratedNumber, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
+            for (int i = lastGeneratedNumber + 1, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
             {
                 if (bits[i])
                 {

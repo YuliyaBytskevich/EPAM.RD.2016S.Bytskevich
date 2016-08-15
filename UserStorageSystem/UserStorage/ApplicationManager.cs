@@ -31,19 +31,19 @@ namespace UserStorage
                 {
                     if (section.SectionItems[i].ServiceType == "master")
                     {
-                        // TODO: run master service
                         var newMaster = new MasterService(section.SectionItems[i].ServiceIdentifier, section.SectionItems[i].XmlPath, new InMemoryUserStorage(new PrimeNumbersGenerator()));
                         Masters.Add(newMaster);
                         serviceThreads[i] = new Thread(CallsToMasterService);
-                        //serviceThreads[i].Start();
                     }
                     else if (section.SectionItems[i].ServiceType == "slave")
                     {
-                        // TODO: run slave service
-                        var newSlave = new SlaveService(section.SectionItems[i].ServiceIdentifier, section.SectionItems[i].XmlPath, new InMemoryUserStorage(new PrimeNumbersGenerator()));
+                        var newSlave = new SlaveService(section.SectionItems[i].ServiceIdentifier, section.SectionItems[i].XmlPath, section.SectionItems[i].Port, new InMemoryUserStorage(new PrimeNumbersGenerator()));
                         Slaves.Add(newSlave);
-                        //serviceThreads[i] = new Thread(newSlave.Initialize);
-                        //serviceThreads[i].Start();
+                        foreach (var masterServce in Masters)
+                        {
+                            masterServce.RegisterPortForSlaveService(section.SectionItems[i].Port);
+                        }
+                        serviceThreads[i] = (i == 2) ? new Thread(CallsToFirstSlave) : new Thread(CallsToSecondSlave);
                     }
                     else
                         throw new ApplicationException("Application manager doesn't support service type '" + section.SectionItems[i].ServiceType + "'.");
@@ -61,10 +61,37 @@ namespace UserStorage
 
         public static void CallsToMasterService()
         {
-            Masters[0].RestoreServiceState();
-            User newUser = new User("John", "Smith", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, new VisaRecord("Neverland", new DateTime(2014, 1, 1), new DateTime(2015, 1, 1)));
+            Masters[0].RestoreServiceState(new InMemoryUserStorage());
+            Masters[0].State.Repository.SetIdGenerator(new PrimeNumbersGenerator(Masters[0].State.LastGeneratedId));
+            User newUser = new User("Jerry", "Mouse", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, new VisaRecord("Neverland", new DateTime(2014, 1, 1), new DateTime(2015, 1, 1)), new VisaRecord("Belarus", new DateTime(2014, 10, 10), new DateTime(2015, 10, 10)));
             Masters[0].Add(newUser);
-            Masters[0].SaveServiceState();
+            Thread.Sleep(500);
+            Masters[0].Delete(newUser);
+            Masters[0].SearchForUsers(x => x.FirstName == "John", x => x.LastName == "Smith");
+            //Masters[0].SaveServiceState();
+        }
+
+        public static void CallsToFirstSlave()
+        {
+            Slaves[0].SearchForUsers();
+            Slaves[0].EnableNetworkConnection();
+            try
+            {
+                User newUser = new User("Darth", "Vader", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male,
+                    new VisaRecord("Neverland", new DateTime(2014, 1, 1), new DateTime(2015, 1, 1)),
+                    new VisaRecord("Belarus", new DateTime(2014, 10, 10), new DateTime(2015, 10, 10)));
+                Slaves[0].Add(newUser);
+            }
+            catch
+            {
+                // do nothing
+            }
+            Slaves[0].SearchForUsers();
+        }
+
+        public static void CallsToSecondSlave()
+        {
+            Slaves[1].EnableNetworkConnection();
         }
 
     }

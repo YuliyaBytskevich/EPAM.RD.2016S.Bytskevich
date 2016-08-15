@@ -28,5 +28,19 @@ namespace UserStorage.Configurations
             get { return ((string)(this["xmlPath"])); }
             set { this["xmlPath"] = value; }
         }
+
+        [ConfigurationProperty("host", DefaultValue = "", IsKey = false, IsRequired = true)]
+        public string Host
+        {
+            get { return ((string)(this["host"])); }
+            set { this["host"] = value; }
+        }
+
+        [ConfigurationProperty("port", DefaultValue = 1000, IsKey = false, IsRequired = true)]
+        public int Port
+        {
+            get { return ((int)(this["port"])); }
+            set { this["port"] = value; }
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace UserStorage
 {
     public interface IUserStorage : IXmlSerializable
     {
+
         int Add(User user, IUserValidation validationRules = null);
 
         int SearchForUser(params Func<User, bool>[] predicates);
@@ -19,5 +20,7 @@ namespace UserStorage
         void Delete(User user);
 
         void Delete(int id);
+
+        void SetIdGenerator(IIdentifiersGenerator generator);
     }
 }

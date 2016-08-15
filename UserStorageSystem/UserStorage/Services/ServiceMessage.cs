@@ -10,8 +10,8 @@ namespace UserStorage.Services
     [Serializable]
     public class ServiceMessage
     {
-        public User ChangingData { get; }
-        public Operation Operation { get; }
+        public User ChangingData { get; set; }
+        public Operation Operation { get; set; }
 
         public ServiceMessage() { }
 

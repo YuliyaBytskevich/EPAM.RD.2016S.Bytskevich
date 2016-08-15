@@ -12,7 +12,7 @@ namespace UserStorage.Services
     public interface IUserStorageService
     {
         [OperationContract]
-        void RestoreServiceState();
+        void RestoreServiceState(IUserStorage targetStorage);
 
         [OperationContract]
         void SaveServiceState();

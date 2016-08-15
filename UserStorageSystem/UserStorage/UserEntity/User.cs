@@ -12,7 +12,7 @@ namespace UserStorage
         public DateTime DateOfBirth { get; set; }
         public string PersonalId { get; set; }
         public Gender Gender { get; set; }
-        public VisaRecord[] Visas { get; }
+        public VisaRecord[] Visas { get; set; }
 
         public User() { }
 
