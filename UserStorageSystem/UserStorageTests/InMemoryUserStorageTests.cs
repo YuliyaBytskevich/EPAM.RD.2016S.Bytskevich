@@ -1,7 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserStorage;
-using UserStorage.UserStorageValidationExceptions;
+using UserStorage.IdentifiersGeneration;
+using UserStorage.Predicates;
+using UserStorage.Repositories;
+using UserStorage.UserEntity;
+using UserStorage.Validation;
 
 namespace UserStorageTests
 {
@@ -66,7 +70,7 @@ namespace UserStorageTests
             storage.Add(firstUser);
             User secondUser = new User("Somename", "Second", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, null);
             int correctId = storage.Add(secondUser);
-            int foundId = storage.SearchForUser(x => x.LastName == "Second");
+            int foundId = storage.SearchForUser(new FirstNamePredicate("Second"));
             Assert.IsNotNull(foundId);
             Assert.AreEqual(correctId, foundId);
         }
@@ -79,7 +83,7 @@ namespace UserStorageTests
             storage.Add(firstUser);
             User secondUser = new User("Somename", "Second", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, null);
             storage.Add(secondUser);
-            int foundId = storage.SearchForUser(x => x.LastName == "Trird");
+            int foundId = storage.SearchForUser(new LastNamePredicate("Trird"));
             Assert.AreEqual(0, foundId);
         }
 
@@ -91,7 +95,7 @@ namespace UserStorageTests
             storage.Add(firstUser);
             User secondUser = new User("Somename", "Second", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, null);
             int correctId = storage.Add(secondUser);
-            int foundId = storage.SearchForUser(x => x.FirstName == "Somename", x => x.LastName == "Second");
+            int foundId = storage.SearchForUser(new FirstNamePredicate("Somename"), new LastNamePredicate("Second"));
             Assert.IsNotNull(foundId);
             Assert.AreEqual(correctId, foundId);
         }
@@ -104,7 +108,7 @@ namespace UserStorageTests
             storage.Add(firstUser);
             User secondUser = new User("Somename", "Second", new DateTime(1990, 1, 2), "1111111A111PB1", Gender.Male, null);
             int correctId = storage.Add(secondUser);
-            int foundId = storage.SearchForUser(x => x.FirstName == "Somename", x => x.LastName == "Second", x => x.DateOfBirth == new DateTime(1990, 1, 2));
+            int foundId = storage.SearchForUser(new FirstNamePredicate("Somename"), new LastNamePredicate("Second"), new DateOfBirthPredicate(new DateTime(1990, 1, 2)));
             Assert.IsNotNull(foundId);
             Assert.AreEqual(correctId, foundId);
         }

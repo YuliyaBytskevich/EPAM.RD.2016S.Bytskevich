@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace UserStorage
+namespace UserStorage.UserEntity
 {
     [Serializable]
+    [DataContract]
     public struct VisaRecord: IXmlSerializable
     {
+        [DataMember]
         public string Country { get; private set; }
+        [DataMember]
         public DateTime DateOfStarting { get; private set; }
+        [DataMember]
         public DateTime DateOfEnding { get; private set; }
 
         public VisaRecord(string country, DateTime dateOfStarting, DateTime dateOfEnding)
@@ -30,11 +31,8 @@ namespace UserStorage
 
         public void ReadXml(XmlReader reader)
         {
-            //reader.ReadToDescendant("Country");
             Country = reader.ReadElementContentAsString();
-            //reader.ReadToDescendant("DateOfStartinguntry");
             DateOfStarting = DateTime.Parse(reader.ReadElementContentAsString());
-            //reader.ReadToDescendant("DateOfStarting");
             DateOfEnding = DateTime.Parse(reader.ReadElementContentAsString());
         }
 

@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UserStorage
+namespace UserStorage.IdentifiersGeneration
 {
-    // TODO: try to make it more useful, fast and remove constant limit :(
-    public class PrimeNumbersGenerator : IIdentifiersGenerator
+    public class PrimeNumbersGenerator : MarshalByRefObject, IIdentifiersGenerator
     {
         private const int maxNumOfNumbers = 10000;
         private IEnumerator<int> numbers;
@@ -44,7 +43,6 @@ namespace UserStorage
                     numOfFound++;
                 }
             }
-
         }
 
         private BitArray SieveOfEratosthenes(int limit)

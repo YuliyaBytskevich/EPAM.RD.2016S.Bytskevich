@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
+using UserStorage.Predicates;
+using UserStorage.Repositories;
+using UserStorage.UserEntity;
 
 namespace UserStorage.Services
 {
@@ -18,7 +18,8 @@ namespace UserStorage.Services
         public int Port { get; }
         private static readonly Logger logger = LogManager.GetLogger("*");
         private ManualResetEvent allDone = new ManualResetEvent(false);
-        
+
+        public SlaveService() { }
 
         public SlaveService(string serviceIdentifier, string xmlPath, int port, IUserStorage storage): base(serviceIdentifier, xmlPath, storage)
         {
@@ -39,15 +40,15 @@ namespace UserStorage.Services
             throw new ForbiddenOperationException("Slave service is not allowed to call DELETE operation");
         }
 
-        public override int SearchForUser(params Func<User, bool>[] predicates)
+        public override int SearchForUser(params IPredicate[] predicates)
         {
-            slaveCollectionsAreEnable.WaitOne();
+            collectionIsEnabled.WaitOne();
             return base.SearchForUser(predicates);
         }
 
-        public override IEnumerable<int> SearchForUsers(params Func<User, bool>[] predicates)
+        public override List<int> SearchForUsers(params IPredicate[] predicates)
         {
-            slaveCollectionsAreEnable.WaitOne();
+            collectionIsEnabled.WaitOne();
             return base.SearchForUsers(predicates);
         }
 
@@ -71,8 +72,6 @@ namespace UserStorage.Services
                 while (true)
                 {
                     allDone.Reset();
-                    //slaveCollectionIsEnable.Reset();
-                    //Console.WriteLine(State.Identifier + ": вызывано несигнальное состояние slaveCollectionIsEnable.Reset()");
                     listener.BeginAccept(AcceptCallback, listener);
                     allDone.WaitOne();
                 }
@@ -86,6 +85,7 @@ namespace UserStorage.Services
         private void AcceptCallback(IAsyncResult ar)
         {
             allDone.Set();
+            collectionIsEnabled.Reset();
             Socket listener = (Socket) ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
             StateObject state = new StateObject();
@@ -116,8 +116,7 @@ namespace UserStorage.Services
                     logger.Info(State.Identifier + ": RECIEVED MESSAGE: " + recievedMessage.Operation + " | " +
                                 recievedMessage.ChangingData.Id + " " + recievedMessage.ChangingData.FirstName + " " +
                                 recievedMessage.ChangingData.LastName);
-                    slaveCollectionsAreEnable.Set();
-                   // Console.WriteLine(State.Identifier + ": вызывано СИГНАЛЬНОЕ состояние slaveCollectionIsEnable.Set()");
+                    collectionIsEnabled.Set();
                 }
                 else
                 {
@@ -135,12 +134,5 @@ namespace UserStorage.Services
             stream.Seek(0, SeekOrigin.Begin);
             return (ServiceMessage) formatter.Deserialize(stream);
         }
-    }
-
-    public class StateObject
-    {
-        public Socket workSocket = null;
-        public const int BufferSize = 1024;
-        public byte[] buffer = new byte[BufferSize];
     }
 }

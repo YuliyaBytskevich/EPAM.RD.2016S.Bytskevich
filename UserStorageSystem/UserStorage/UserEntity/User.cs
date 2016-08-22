@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 
-namespace UserStorage
+namespace UserStorage.UserEntity
 {
+    [DataContract]
     [Serializable]
     public class User
     {
+        [DataMember]
         public int Id { get; set; }
+        [DataMember]
         public string FirstName { get; set; }
+        [DataMember]
         public string LastName { get; set; }
+        [DataMember]
         public DateTime DateOfBirth { get; set; }
+        [DataMember]
         public string PersonalId { get; set; }
+        [DataMember]
         public Gender Gender { get; set; }
+        [DataMember]
         public VisaRecord[] Visas { get; set; }
 
         public User() { }
@@ -51,7 +60,6 @@ namespace UserStorage
             return (PersonalId.GetHashCode() ^ DateOfBirth.GetHashCode() ^ LastName.GetHashCode());
         }
 
-
         private bool AllVisasMatch(VisaRecord[] firstUserVisas, VisaRecord[] secondUserVisas)
         {
             if (firstUserVisas == null && secondUserVisas == null)
@@ -76,6 +84,5 @@ namespace UserStorage
             }
             return true;
         }
-
     }
 }

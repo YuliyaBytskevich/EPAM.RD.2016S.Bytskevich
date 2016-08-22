@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using UserStorage.UserEntity;
 
-namespace UserStorage
+namespace UserStorage.Validation
 {
-    public class BelarusianUsersValidation: IUserValidation
+    public class BelarusianUsersValidation: MarshalByRefObject, IUserValidation
     {
-        private Regex firstNameRegex = new Regex("[A-Z][a-z]+");
-        private Regex lastNameRegex = new Regex("[A-Z][a-z]+(-[A-Z][a-z]+)?");
-        private Regex personalIdRegex = new Regex("[0-9]{7}[A-Z][0-9]{3}[A-Z]{2}[0-9]");
+        private readonly Regex firstNameRegex = new Regex("[A-Z][a-z]+");
+        private readonly Regex lastNameRegex = new Regex("[A-Z][a-z]+(-[A-Z][a-z]+)?");
+        private readonly Regex personalIdRegex = new Regex("[0-9]{7}[A-Z][0-9]{3}[A-Z]{2}[0-9]");
         
         public bool FirstNameIsValid(string firstNameApplicant)
         {
@@ -38,22 +36,12 @@ namespace UserStorage
         {
             if (visasApplicants == null)
                 return true;
-            bool result = true;
-            foreach(var visa in visasApplicants)
-            {
-                if (!VisaRecordIsValid(visa))
-                {
-                    result = false;
-                    break;
-                }
-            }
-            return result;
+            return visasApplicants.All(VisaRecordIsValid);
         }
 
         private bool VisaRecordIsValid(VisaRecord visa)
         {
-            // TODO: 1. Also add checking by existing countries of the world
-            return (visa.DateOfEnding > visa.DateOfStarting) ? true : false;
+            return visa.DateOfEnding > visa.DateOfStarting;
         }
 
     }

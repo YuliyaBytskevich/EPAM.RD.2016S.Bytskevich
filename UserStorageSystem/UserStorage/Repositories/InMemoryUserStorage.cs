@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
+using UserStorage.IdentifiersGeneration;
+using UserStorage.Predicates;
+using UserStorage.UserEntity;
+using UserStorage.Validation;
 
-namespace UserStorage
+namespace UserStorage.Repositories
 {
-    //[Serializable]
-    public class InMemoryUserStorage: IUserStorage
+    public class InMemoryUserStorage: MarshalByRefObject, IUserStorage
     {
         private List<User> users;
         private IIdentifiersGenerator idGenerator;
 
-        public InMemoryUserStorage()
-        {
-   
-        }
+        public InMemoryUserStorage() {}
 
         public InMemoryUserStorage(IIdentifiersGenerator generator)
         {
@@ -74,7 +69,7 @@ namespace UserStorage
                     exceptionMessage += "Information about user's vivas is invalid.\n";
                 }
                 if (!userInfoIsValid)
-                    throw new UserStorageValidationExceptions.InvalidUserInfoException(exceptionMessage);
+                    throw new InvalidUserInfoException(exceptionMessage);
                 user.Id = idGenerator.GenerateNewNumber();
                 users.Add(user);
                 return user.Id;
@@ -84,44 +79,24 @@ namespace UserStorage
             return user.Id;
         }
 
-        public int SearchForUser(params Func<User, bool>[] predicates)
+        public int SearchForUser(params IPredicate[] predicates)
         {
             if (!users.Any())
                 return -1;
             if (!predicates.Any())
-                return users.First().Id;
-            IEnumerable<User> foundEntities;
-            if (predicates.Length == 1)
-            {
-                foundEntities = users.Where(x => predicates[0](x));
-            }
-            else
-            {
-                Func<User, bool> combinedPredicate = x => true;
-                combinedPredicate = predicates.Aggregate(combinedPredicate, (current, predicate) => (x => (current(x) && predicate(x))));
-                foundEntities = users.Where(combinedPredicate);
-            }
+                return 0;
+            IEnumerable<User> foundEntities = users.Where(user => CheckIfAllPredicatesMatch(user, predicates));
             return foundEntities.Any() ? foundEntities.First().Id : 0;           
         }
 
-        public IEnumerable<int> SearchForUsers(params Func<User, bool>[] predicates)
+        public List<int> SearchForUsers(params IPredicate[] predicates)
         {
             if (!users.Any())
                 return null;
             if (!predicates.Any())
-                return users.Select(user => user.Id);
-            IEnumerable<User> foundEntities;
-            if (predicates.Length == 1)
-            {
-                foundEntities = users.Where(x => predicates[0](x));
-            }
-            else
-            {
-                Func<User, bool> combinedPredicate = x => true;
-                combinedPredicate = predicates.Aggregate(combinedPredicate, (current, predicate) => (x => (current(x) && predicate(x))));
-                foundEntities = users.Where(combinedPredicate);
-            }
-            return foundEntities.Any() ? foundEntities.Select(user => user.Id) : new List<int>();
+                return users.Select(user => user.Id).ToList();
+            var foundEntities = users.Where(user => CheckIfAllPredicatesMatch(user, predicates));
+            return foundEntities.Any() ? foundEntities.Select(user => user.Id).ToList() : new List<int>();
         }
         
         public void Delete(User user)
@@ -204,6 +179,21 @@ namespace UserStorage
             }
             writer.WriteEndElement();
             writer.WriteEndElement();
+        }
+
+        private bool CheckIfAllPredicatesMatch(User candidate, IPredicate[] predicates)
+        {
+            bool result = true;
+            int numOfPredicates = predicates.Length;
+            for (int i = 0; i < numOfPredicates; i++)
+            {
+                if (predicates[i].IsMatching(candidate) == false)
+                {
+                    result = false;
+                    break;
+                }
+            }
+            return result;
         }
     }
 }

@@ -38,6 +38,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
@@ -52,12 +53,15 @@
     <Compile Include="Configurations\ServicesCollection.cs" />
     <Compile Include="Configurations\ServicesConfigSection.cs" />
     <Compile Include="Configurations\ServiceElement.cs" />
+    <Compile Include="Predicates\DateOfBirthPredicate.cs" />
+    <Compile Include="Predicates\FirstNamePredicate.cs" />
+    <Compile Include="Predicates\IPredicate.cs" />
+    <Compile Include="Predicates\LastNamePredicate.cs" />
     <Compile Include="Services\ForbiddenOperationException.cs" />
     <Compile Include="Services\IUserStorageService.cs" />
     <Compile Include="Services\ServiceMessage.cs" />
     <Compile Include="Services\ServiceState.cs" />
     <Compile Include="Services\SlaveService.cs" />
-    <Compile Include="Services\UserChangesEventArgs.cs" />
     <Compile Include="Validation\BelarusianUsersValidation.cs" />
     <Compile Include="UserEntity\Gender.cs" />
     <Compile Include="Services\MasterService.cs" />
@@ -83,9 +87,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

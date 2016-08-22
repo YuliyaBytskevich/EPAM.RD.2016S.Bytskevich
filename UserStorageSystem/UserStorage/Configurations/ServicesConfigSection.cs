@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 
 namespace UserStorage.Configurations
 {
@@ -15,7 +10,6 @@ namespace UserStorage.Configurations
         {
             get { return ((ServicesCollection)(this["Services"])); }
         }
-
 
         public ServicesCollection ServicesCollection
         {
@@ -30,6 +24,5 @@ namespace UserStorage.Configurations
         {
             return (ServicesConfigSection)System.Configuration.ConfigurationManager.GetSection("ServicesSection") ?? new ServicesConfigSection();
         }
-
     }
 }

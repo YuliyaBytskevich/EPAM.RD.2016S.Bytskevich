@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
-namespace UserStorage
+namespace UserStorage.UserEntity
 {
+    [DataContract]
     public enum Gender
     {
+        [EnumMember]
         Male = 1,
+        [EnumMember]
         Female
     }
 }

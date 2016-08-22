@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Xml.Serialization;
 using NLog;
-using UserStorage.Services;
+using UserStorage.Predicates;
+using UserStorage.Repositories;
+using UserStorage.UserEntity;
 
-namespace UserStorage
+namespace UserStorage.Services
 {
-    public abstract class UserStorageService: IUserStorageService
+    public abstract class UserStorageService: MarshalByRefObject, IUserStorageService
     {
         public ServiceState State { get; set; }
-        private static readonly Logger logger = LogManager.GetLogger("*");
-        protected static ManualResetEvent slaveCollectionsAreEnable = new ManualResetEvent(true);
+        protected ManualResetEvent collectionIsEnabled = new ManualResetEvent(true);
+        private static readonly Logger logger = LogManager.GetLogger("*");    
+
+        protected UserStorageService() { }
 
         protected UserStorageService(string serviceIdentifier, string xmlPath, IUserStorage storage)
         {
@@ -64,7 +69,7 @@ namespace UserStorage
 
         public abstract void Delete(User user);
 
-        public virtual int SearchForUser(params Func<User, bool>[] predicates)
+        public virtual int SearchForUser(params IPredicate[] predicates)
         {
             logger.Trace(State.Identifier + " : SEARCH operation called... ");
             var result = State.Repository.SearchForUser(predicates);
@@ -77,7 +82,7 @@ namespace UserStorage
             return result;
         }
 
-        public virtual IEnumerable<int> SearchForUsers(params Func<User, bool>[] predicates)
+        public virtual List<int> SearchForUsers(params IPredicate[] predicates)
         {
             logger.Trace(State.Identifier + " : SEARCH operation called... ");
             var result = State.Repository.SearchForUsers(predicates);
@@ -97,6 +102,12 @@ namespace UserStorage
             return result;
         }
 
+    }
 
+    public class StateObject
+    {
+        public Socket workSocket = null;
+        public const int BufferSize = 1024;
+        public byte[] buffer = new byte[BufferSize];
     }
 }

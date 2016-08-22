@@ -1,37 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
-using UserStorage.Services;
-using UserStorage.Configurations;
+using UserStorage.Predicates;
+using UserStorage.Repositories;
+using UserStorage.UserEntity;
 
-namespace UserStorage
+namespace UserStorage.Services
 {
     public class MasterService : UserStorageService
     {
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
-        private static ManualResetEvent masterCollectionIsEnable = new ManualResetEvent(true);
         private static Logger logger = LogManager.GetLogger("*");
         private List<int> slavePorts = new List<int>();
 
+        public MasterService() { }
 
         public MasterService(string serviceIdentifier, string xmlPath, IUserStorage storage) : base(serviceIdentifier, xmlPath, storage) { }
         
         public override void Add(User user)
         {
-            slaveCollectionsAreEnable.Reset();
-            masterCollectionIsEnable.WaitOne();
-            masterCollectionIsEnable.Reset();
+            collectionIsEnabled.WaitOne();
+            collectionIsEnabled.Reset();
             logger.Trace(State.Identifier + " : ADD [master service] operation called... ");
             try
             {
@@ -50,15 +46,14 @@ namespace UserStorage
             }
             finally
             {
-                masterCollectionIsEnable.Set();
+                collectionIsEnabled.Set();
             }
         }
 
         public override void Delete(User user)
         {
-            slaveCollectionsAreEnable.Reset();
-            masterCollectionIsEnable.WaitOne();
-            masterCollectionIsEnable.Reset();
+            collectionIsEnabled.WaitOne();
+            collectionIsEnabled.Reset();
             logger.Trace(State.Identifier + " : DELETE [master service] operation called... ");
             try
             {
@@ -76,7 +71,7 @@ namespace UserStorage
             }
             finally
             {
-                masterCollectionIsEnable.Set();
+                collectionIsEnabled.Set();
             }
         }
 
@@ -85,15 +80,15 @@ namespace UserStorage
             slavePorts.Add(newSlavePort);
         }
 
-        public override int SearchForUser(params Func<User, bool>[] predicates)
+        public override int SearchForUser(params IPredicate[] predicates)
         {
-            masterCollectionIsEnable.WaitOne();
+            collectionIsEnabled.WaitOne();
             return base.SearchForUser(predicates);
         }
 
-        public override IEnumerable<int> SearchForUsers(params Func<User, bool>[] predicates)
+        public override List<int> SearchForUsers(params IPredicate[] predicates)
         {
-            masterCollectionIsEnable.WaitOne();
+            collectionIsEnabled.WaitOne();
             return base.SearchForUsers(predicates);
         }
 
@@ -163,10 +158,4 @@ namespace UserStorage
         }
     }
 
-    public class StateObject
-    {
-        public Socket workSocket = null;
-        public const int BufferSize = 1024;
-        public byte[] buffer = new byte[BufferSize];
-    }
 }

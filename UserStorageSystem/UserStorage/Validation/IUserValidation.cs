@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UserStorage.UserEntity;
 
-namespace UserStorage
+namespace UserStorage.Validation
 {
     public interface IUserValidation
     {
-
         bool FirstNameIsValid(string firstNameApplicant);
 
         bool LastNameIsValid(string lastNameApplicant);

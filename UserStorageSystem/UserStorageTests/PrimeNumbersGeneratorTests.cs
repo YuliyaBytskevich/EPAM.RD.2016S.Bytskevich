@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserStorage;
+using UserStorage.IdentifiersGeneration;
 
 namespace UserStorageTests
 {

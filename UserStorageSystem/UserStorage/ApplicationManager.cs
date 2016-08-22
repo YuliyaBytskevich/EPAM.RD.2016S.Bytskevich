@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using UserStorage.Configurations;
+using UserStorage.IdentifiersGeneration;
+using UserStorage.Repositories;
 using UserStorage.Services;
 
 namespace UserStorage
@@ -18,81 +17,67 @@ namespace UserStorage
         public static void ConfigureAppServces()
         {
             ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
-            fileMap.ExeConfigFilename =
-                typeof (ApplicationManager).Assembly.Location.Replace("UserStorageConsoleApp", "UserStorage") +
-                ".config";
+            string correctPath =
+                @"C:\Users\julia\Desktop\epam\EPAM.RD.2016S.Bytskevich\UserStorageSystem\UserStorage\bin\Debug\UserStorage.dll.config";
+            fileMap.ExeConfigFilename = correctPath;
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
             ServicesConfigSection section = (ServicesConfigSection)config.GetSection("ServicesSection");          
             if (section != null)
             {
                 int itemsCount = section.SectionItems.Count;
-                Thread[] serviceThreads = new Thread[itemsCount];
+                
                 for (int i = 0; i < itemsCount; i++)
                 {
                     if (section.SectionItems[i].ServiceType == "master")
                     {
-                        var newMaster = new MasterService(section.SectionItems[i].ServiceIdentifier, section.SectionItems[i].XmlPath, new InMemoryUserStorage(new PrimeNumbersGenerator()));
+                        var newMaster = (MasterService)CreateService(section.SectionItems[i]);
                         Masters.Add(newMaster);
-                        serviceThreads[i] = new Thread(CallsToMasterService);
                     }
                     else if (section.SectionItems[i].ServiceType == "slave")
                     {
-                        var newSlave = new SlaveService(section.SectionItems[i].ServiceIdentifier, section.SectionItems[i].XmlPath, section.SectionItems[i].Port, new InMemoryUserStorage(new PrimeNumbersGenerator()));
+                        var newSlave = (SlaveService)CreateService(section.SectionItems[i]);
                         Slaves.Add(newSlave);
                         foreach (var masterServce in Masters)
                         {
                             masterServce.RegisterPortForSlaveService(section.SectionItems[i].Port);
                         }
-                        serviceThreads[i] = (i == 2) ? new Thread(CallsToFirstSlave) : new Thread(CallsToSecondSlave);
                     }
                     else
                         throw new ApplicationException("Application manager doesn't support service type '" + section.SectionItems[i].ServiceType + "'.");
 
                 }
                 Console.WriteLine("ALL SERVICES ARE CONFIGURED");
-                foreach (var thread in serviceThreads)
-                {
-                    thread?.Start();
-                }
             }
             else
                 throw new ApplicationException("Configuration manager can't extract required information. Configuration file (App.config) is empty or currupted.");
         }
 
-        public static void CallsToMasterService()
+        private static UserStorageService CreateService(ServiceElement config)
         {
-            Masters[0].RestoreServiceState(new InMemoryUserStorage());
-            Masters[0].State.Repository.SetIdGenerator(new PrimeNumbersGenerator(Masters[0].State.LastGeneratedId));
-            User newUser = new User("Jerry", "Mouse", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male, new VisaRecord("Neverland", new DateTime(2014, 1, 1), new DateTime(2015, 1, 1)), new VisaRecord("Belarus", new DateTime(2014, 10, 10), new DateTime(2015, 10, 10)));
-            Masters[0].Add(newUser);
-            Thread.Sleep(500);
-            Masters[0].Delete(newUser);
-            Masters[0].SearchForUsers(x => x.FirstName == "John", x => x.LastName == "Smith");
-            //Masters[0].SaveServiceState();
-        }
-
-        public static void CallsToFirstSlave()
-        {
-            Slaves[0].SearchForUsers();
-            Slaves[0].EnableNetworkConnection();
-            try
+            AppDomain domain = AppDomain.CreateDomain("CustomDomain_" + config.ServiceIdentifier);
+            domain.Load("UserStorage");
+            PrimeNumbersGenerator generator = (PrimeNumbersGenerator)
+                    domain.CreateInstanceAndUnwrap("UserStorage", "UserStorage.IdentifiersGeneration.PrimeNumbersGenerator",
+                        false, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.Instance,
+                        null, new object[] { 1 }, null, null);
+            InMemoryUserStorage storage = (InMemoryUserStorage)
+                    domain.CreateInstanceAndUnwrap("UserStorage", "UserStorage.Repositories.InMemoryUserStorage",
+                        false, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.Instance,
+                        null, new object[] { generator }, null, null);
+            UserStorageService service;
+            if (config.ServiceType == "master")
             {
-                User newUser = new User("Darth", "Vader", new DateTime(1990, 1, 1), "1111111A111PB1", Gender.Male,
-                    new VisaRecord("Neverland", new DateTime(2014, 1, 1), new DateTime(2015, 1, 1)),
-                    new VisaRecord("Belarus", new DateTime(2014, 10, 10), new DateTime(2015, 10, 10)));
-                Slaves[0].Add(newUser);
+                service = (MasterService)domain.CreateInstanceAndUnwrap("UserStorage", "UserStorage.Services.MasterService",
+                false, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.Instance,
+                null, new object[] { config.ServiceIdentifier, config.XmlPath, storage }, null, null);
             }
-            catch
+            else
             {
-                // do nothing
+                service = (SlaveService)domain.CreateInstanceAndUnwrap("UserStorage", "UserStorage.Services.SlaveService",
+                false, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.Instance,
+                null, new object[] { config.ServiceIdentifier, config.XmlPath, config.Port, storage }, null, null);
             }
-            Slaves[0].SearchForUsers();
+            return service;
         }
-
-        public static void CallsToSecondSlave()
-        {
-            Slaves[1].EnableNetworkConnection();
-        }
-
     }
 }

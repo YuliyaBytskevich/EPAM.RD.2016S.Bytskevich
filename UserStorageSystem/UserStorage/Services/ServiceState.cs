@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using UserStorage.Repositories;
 
 namespace UserStorage.Services
 {
-    //[Serializable]
+    [Serializable]
     public class ServiceState: IXmlSerializable
     {
         public string Identifier { get; private set; }
@@ -70,18 +67,10 @@ namespace UserStorage.Services
 
         public void WriteXml(XmlWriter writer)
         {
-            //XmlSerializer stringSerializer = new XmlSerializer(typeof(string));
-            //XmlSerializer intSserializer = new XmlSerializer(typeof(int));
-            //XmlSerializer repositorySerializer = new XmlSerializer(typeof(IUserStorage));
-            //stringSerializer.Serialize(writer, Identifier);
-            //stringSerializer.Serialize(writer, XmlPath);      
-            //intSserializer.Serialize(writer, LastGeneratedId);
-            //repositorySerializer.Serialize(writer, Repository);
             writer.WriteElementString("Identifier", Identifier);
             writer.WriteElementString("XmlPath", XmlPath);
             writer.WriteElementString("LastGeneratedId", LastGeneratedId.ToString());
             Repository.WriteXml(writer);
-            //writer.write
         }
     }
 }
