@@ -1,13 +1,27 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.Serialization;
-
-namespace UserStorage.UserEntity
+﻿namespace UserStorage.UserEntity
 {
+    using System;
+    using System.Linq;
+    using System.Runtime.Serialization;
+
     [DataContract]
     [Serializable]
     public class User
     {
+        public User()
+        {           
+        }
+
+        public User(string firstname, string lastname, DateTime dateOfBirth, string personalId, Gender gender, params VisaRecord[] visas)
+        {
+            this.FirstName = firstname;
+            this.LastName = lastname;
+            this.DateOfBirth = dateOfBirth;
+            this.PersonalId = personalId;
+            Gender = gender;
+            this.Visas = visas;
+        }
+
         [DataMember]
         public int Id { get; set; }
         [DataMember]
@@ -23,41 +37,30 @@ namespace UserStorage.UserEntity
         [DataMember]
         public VisaRecord[] Visas { get; set; }
 
-        public User() { }
-
-        public User(string firstname, string lastname, DateTime dateOfBirth, string personalId, Gender gender, params VisaRecord[] visas)
-        {
-            FirstName = firstname;
-            LastName = lastname;
-            DateOfBirth = dateOfBirth;
-            PersonalId = personalId;
-            Gender = gender;
-            Visas = visas;
-        }
-
         public override bool Equals(object obj)
         {
             if (obj == null)
             {
                 return false;
             }
+
             User user = obj as User;
-            if ((System.Object)user == null)
+            if ((object)user == null)
             {
                 return false;
             }
-            return (PersonalId == user.PersonalId &&
-                    DateOfBirth == user.DateOfBirth &&
-                    Gender == user.Gender &&
-                    LastName == user.LastName &&
-                    FirstName == user.FirstName &&
-                    AllVisasMatch(Visas, user.Visas)
-                );
+
+            return this.PersonalId == user.PersonalId &&
+                   this.DateOfBirth == user.DateOfBirth &&
+                   Gender == user.Gender &&
+                   this.LastName == user.LastName &&
+                   this.FirstName == user.FirstName &&
+                   this.AllVisasMatch(this.Visas, user.Visas);
         }
 
         public override int GetHashCode()
         {
-            return (PersonalId.GetHashCode() ^ DateOfBirth.GetHashCode() ^ LastName.GetHashCode());
+            return this.PersonalId.GetHashCode() ^ this.DateOfBirth.GetHashCode() ^ this.LastName.GetHashCode();
         }
 
         private bool AllVisasMatch(VisaRecord[] firstUserVisas, VisaRecord[] secondUserVisas)
@@ -66,14 +69,17 @@ namespace UserStorage.UserEntity
             {
                 return true;
             }
+
             if (firstUserVisas == null || secondUserVisas == null)
             {
                 return false;
             }
+
             if (firstUserVisas.Count() != secondUserVisas.Count())
             {
                 return false;
             }
+
             int numOfVisas = firstUserVisas.Count();
             for (int i = 0; i < numOfVisas; i++)
             {
@@ -82,6 +88,7 @@ namespace UserStorage.UserEntity
                     return false;
                 }
             }
+
             return true;
         }
     }

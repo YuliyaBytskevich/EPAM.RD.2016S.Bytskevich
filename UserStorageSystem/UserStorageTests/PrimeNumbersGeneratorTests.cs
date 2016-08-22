@@ -1,9 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using UserStorage;
-using UserStorage.IdentifiersGeneration;
-
-namespace UserStorageTests
+﻿namespace UserStorageTests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using UserStorage.IdentifiersGeneration;
+
     [TestClass]
     public class PrimeNumbersGeneratorTests
     {
@@ -42,7 +41,8 @@ namespace UserStorageTests
             for (int i = 0; i < 25; i++)
             {
                 result = generator.GenerateNewNumber();
-            }            
+            } 
+                       
             Assert.IsNotNull(result);
             Assert.AreEqual(97, result);
         }
@@ -56,11 +56,13 @@ namespace UserStorageTests
             {
                 result = generator.GenerateNewNumber();
             }
+
             generator.ResetGenerator();
             for (int i = 0; i < 3; i++)
             {
                 result = generator.GenerateNewNumber();
             }
+
             Assert.IsNotNull(result);
             Assert.AreEqual(5, result);
         }

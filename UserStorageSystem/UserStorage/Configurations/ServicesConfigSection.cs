@@ -1,15 +1,12 @@
-﻿using System.Configuration;
-
-namespace UserStorage.Configurations
+﻿namespace UserStorage.Configurations
 {
+    using System.Configuration;
+
     public class ServicesConfigSection : ConfigurationSection
     {
         [ConfigurationProperty("Services", IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(ServicesCollection), AddItemName = "add")]
-        public ServicesCollection SectionItems
-        {
-            get { return ((ServicesCollection)(this["Services"])); }
-        }
+        public ServicesCollection SectionItems => (ServicesCollection)this["Services"];
 
         public ServicesCollection ServicesCollection
         {

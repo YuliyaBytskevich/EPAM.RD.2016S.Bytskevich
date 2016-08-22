@@ -1,18 +1,26 @@
-﻿using System.Configuration;
-
-namespace UserStorage.Configurations
+﻿namespace UserStorage.Configurations
 {
-    [ConfigurationCollection(typeof(ServiceElement))]
-    public class ServicesCollection: ConfigurationElementCollection
-    {
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new ServiceElement();
-        }
+    using System.Configuration;
 
-        protected override object GetElementKey(ConfigurationElement element)
+    [ConfigurationCollection(typeof(ServiceElement))]
+    public class ServicesCollection : ConfigurationElementCollection
+    {
+        public new ServiceElement this[string responseString]
         {
-            return ((ServiceElement)(element)).ServiceIdentifier;
+            get
+            {
+                return (ServiceElement)BaseGet(responseString);
+            }
+
+            set
+            {
+                if (this.BaseGet(responseString) != null)
+                {
+                    this.BaseRemoveAt(this.BaseIndexOf(this.BaseGet(responseString)));
+                }
+
+                this.BaseAdd(value);
+            }
         }
 
         public ServiceElement this[int index]
@@ -21,27 +29,26 @@ namespace UserStorage.Configurations
             {
                 return BaseGet(index) as ServiceElement;
             }
+
             set
             {
-                if (BaseGet(index) != null)
+                if (this.BaseGet(index) != null)
                 {
-                    BaseRemoveAt(index);
+                    this.BaseRemoveAt(index);
                 }
-                BaseAdd(index, value);
+
+                this.BaseAdd(index, value);
             }
         }
 
-        public new ServiceElement this[string responseString]
+        protected override ConfigurationElement CreateNewElement()
         {
-            get { return (ServiceElement)BaseGet(responseString); }
-            set
-            {
-                if (BaseGet(responseString) != null)
-                {
-                    BaseRemoveAt(BaseIndexOf(BaseGet(responseString)));
-                }
-                BaseAdd(value);
-            }
+            return new ServiceElement();
+        }
+
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((ServiceElement)element).ServiceIdentifier;
         }
     }
 }

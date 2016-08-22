@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using UserStorage.UserEntity;
-
-namespace UserStorage.Validation
+﻿namespace UserStorage.Validation
 {
-    public class BelarusianUsersValidation: MarshalByRefObject, IUserValidation
+    using System;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using UserEntity;
+
+    public class BelarusianUsersValidation : MarshalByRefObject, IUserValidation
     {
         private readonly Regex firstNameRegex = new Regex("[A-Z][a-z]+");
         private readonly Regex lastNameRegex = new Regex("[A-Z][a-z]+(-[A-Z][a-z]+)?");
@@ -13,12 +13,12 @@ namespace UserStorage.Validation
         
         public bool FirstNameIsValid(string firstNameApplicant)
         {
-            return firstNameRegex.IsMatch(firstNameApplicant) ? true : false;
+            return this.firstNameRegex.IsMatch(firstNameApplicant) ? true : false;
         }
 
         public bool LastNameIsValid(string lastNameApplicant)
         {
-            return lastNameRegex.IsMatch(lastNameApplicant) ? true : false;
+            return this.lastNameRegex.IsMatch(lastNameApplicant) ? true : false;
         }
 
         public bool DateOfBirthIsValid(DateTime dateOfBirthApplicant)
@@ -29,20 +29,22 @@ namespace UserStorage.Validation
 
         public bool PersonalIdIsValid(string personalIdApplicant)
         {
-            return personalIdRegex.IsMatch(personalIdApplicant) ? true : false;
+            return this.personalIdRegex.IsMatch(personalIdApplicant) ? true : false;
         }
 
         public bool VisaRecordsAreValid(VisaRecord[] visasApplicants)
         {
             if (visasApplicants == null)
+            {
                 return true;
-            return visasApplicants.All(VisaRecordIsValid);
+            }
+
+            return visasApplicants.All(this.VisaRecordIsValid);
         }
 
         private bool VisaRecordIsValid(VisaRecord visa)
         {
             return visa.DateOfEnding > visa.DateOfStarting;
         }
-
     }
 }

@@ -1,14 +1,13 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using UserStorage;
-using UserStorage.IdentifiersGeneration;
-using UserStorage.Predicates;
-using UserStorage.Repositories;
-using UserStorage.UserEntity;
-using UserStorage.Validation;
-
-namespace UserStorageTests
+﻿namespace UserStorageTests
 {
+    using System;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using UserStorage.IdentifiersGeneration;
+    using UserStorage.Predicates;
+    using UserStorage.Repositories;
+    using UserStorage.UserEntity;
+    using UserStorage.Validation;
+
     [TestClass]
     public class InMemoryUserStorageTests
     {
@@ -125,6 +124,5 @@ namespace UserStorageTests
             storage.Delete(firstUser);
             Assert.AreEqual(1, storage.GetUsersCount());
         }
-
     }
 }

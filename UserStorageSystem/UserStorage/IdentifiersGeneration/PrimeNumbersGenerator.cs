@@ -1,41 +1,42 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace UserStorage.IdentifiersGeneration
+﻿namespace UserStorage.IdentifiersGeneration
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
     public class PrimeNumbersGenerator : MarshalByRefObject, IIdentifiersGenerator
     {
-        private const int maxNumOfNumbers = 10000;
+        private const int MaxNumOfNumbers = 10000;
         private IEnumerator<int> numbers;
         
         public PrimeNumbersGenerator(int lastGeneratedNumber = 1)
         {
-            numbers = GetNewPrimeId(lastGeneratedNumber); 
+            this.numbers = this.GetNewPrimeId(lastGeneratedNumber); 
         } 
 
         public void ResetGenerator()
         {
-            numbers = GetNewPrimeId(1);
+            this.numbers = this.GetNewPrimeId(1);
         }
 
         public int GenerateNewNumber()
         {
-            bool isPossibleToGetNext = numbers.MoveNext();
+            bool isPossibleToGetNext = this.numbers.MoveNext();
             if (!isPossibleToGetNext)
             {
-                ResetGenerator();
-                numbers.MoveNext();
+                this.ResetGenerator();
+                this.numbers.MoveNext();
             }
-            return numbers.Current;
+
+            return this.numbers.Current;
         }
 
         private IEnumerator<int> GetNewPrimeId(int lastGeneratedNumber)
         {
-            int limit = ApproximateNthPrime(maxNumOfNumbers);
-            BitArray bits = SieveOfEratosthenes(limit);
+            int limit = this.ApproximateNthPrime(MaxNumOfNumbers);
+            BitArray bits = this.SieveOfEratosthenes(limit);
             List<int> primes = new List<int>();
-            for (int i = lastGeneratedNumber + 1, numOfFound = 0; i < limit && numOfFound < maxNumOfNumbers; i++)
+            for (int i = lastGeneratedNumber + 1, numOfFound = 0; i < limit && numOfFound < MaxNumOfNumbers; i++)
             {
                 if (bits[i])
                 {
@@ -60,6 +61,7 @@ namespace UserStorage.IdentifiersGeneration
                     }
                 }
             }
+
             return bits;
         }
         
@@ -69,11 +71,11 @@ namespace UserStorage.IdentifiersGeneration
             double p;
             if (nn >= 7022)
             {
-                p = n * Math.Log(n) + n * (Math.Log(Math.Log(n)) - 0.9385);
+                p = (n * Math.Log(n)) + (n * (Math.Log(Math.Log(n)) - 0.9385));
             }
             else if (nn >= 6)
             {
-                p = n * Math.Log(n) + n * Math.Log(Math.Log(n));
+                p = (n * Math.Log(n)) + (n * Math.Log(Math.Log(n)));
             }
             else if (nn > 0)
             {
@@ -83,6 +85,7 @@ namespace UserStorage.IdentifiersGeneration
             {
                 p = 0;
             }
+
             return (int)p;
         }
     }

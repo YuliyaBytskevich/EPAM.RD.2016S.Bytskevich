@@ -1,8 +1,8 @@
-﻿using System;
-using UserStorage.UserEntity;
-
-namespace UserStorage.Validation
+﻿namespace UserStorage.Validation
 {
+    using System;
+    using UserEntity;
+
     public interface IUserValidation
     {
         bool FirstNameIsValid(string firstNameApplicant);

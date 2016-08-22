@@ -1,39 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.Xml.Schema;
-using UserStorage.IdentifiersGeneration;
-using UserStorage.Predicates;
-using UserStorage.UserEntity;
-using UserStorage.Validation;
-
-namespace UserStorage.Repositories
+﻿namespace UserStorage.Repositories
 {
-    public class InMemoryUserStorage: MarshalByRefObject, IUserStorage
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Xml;
+    using System.Xml.Schema;
+    using IdentifiersGeneration;
+    using Predicates;
+    using UserEntity;
+    using Validation;
+
+    public class InMemoryUserStorage : MarshalByRefObject, IUserStorage
     {
         private List<User> users;
         private IIdentifiersGenerator idGenerator;
 
-        public InMemoryUserStorage() {}
+        public InMemoryUserStorage()
+        {          
+        }
 
         public InMemoryUserStorage(IIdentifiersGenerator generator)
         {
-            users = new List<User>();
-            idGenerator = generator;
-        }
-
-        public void SetIdGenerator(IIdentifiersGenerator generator)
-        {
-            idGenerator = generator;
+            this.users = new List<User>();
+            this.idGenerator = generator;
         }
 
         protected InMemoryUserStorage(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
+            {
                 throw new ArgumentNullException(nameof(info));
-            users = (List < User > ) info.GetValue("UsersList", typeof(List<User>));
+            }
+                
+            this.users = (List<User>)info.GetValue("UsersList", typeof(List<User>));
+        }
+
+        public void SetIdGenerator(IIdentifiersGenerator generator)
+        {
+            this.idGenerator = generator;
         }
 
         public int Add(User user, IUserValidation validationRules = null) 
@@ -43,75 +48,96 @@ namespace UserStorage.Repositories
             {
                 string exceptionMessage = null;
                 bool userInfoIsValid = true;
-                if(!validationRules.FirstNameIsValid(user.FirstName))
+                if (!validationRules.FirstNameIsValid(user.FirstName))
                 {
                     userInfoIsValid = false;
                     exceptionMessage += "User's firstname is invalid.\n";
                 }
+
                 if (!validationRules.LastNameIsValid(user.LastName))
                 {
                     userInfoIsValid = false;
                     exceptionMessage += "User's lastname is invalid.\n";
                 }
+
                 if (!validationRules.DateOfBirthIsValid(user.DateOfBirth))
                 {
                     userInfoIsValid = false;
                     exceptionMessage += "User's date of birth is invalid.\n";
                 }
+
                 if (!validationRules.PersonalIdIsValid(user.PersonalId))
                 {
                     userInfoIsValid = false;
                     exceptionMessage += "User's personal ID is invalid.\n";
                 }
+
                 if (!validationRules.VisaRecordsAreValid(user.Visas))
                 {
                     userInfoIsValid = false;
                     exceptionMessage += "Information about user's vivas is invalid.\n";
                 }
+
                 if (!userInfoIsValid)
+                {
                     throw new InvalidUserInfoException(exceptionMessage);
-                user.Id = idGenerator.GenerateNewNumber();
-                users.Add(user);
+                }
+
+                user.Id = this.idGenerator.GenerateNewNumber();
+                this.users.Add(user);
                 return user.Id;
-            }           
-            user.Id = idGenerator.GenerateNewNumber();
-            users.Add(user);
+            }   
+                    
+            user.Id = this.idGenerator.GenerateNewNumber();
+            this.users.Add(user);
             return user.Id;
         }
 
         public int SearchForUser(params IPredicate[] predicates)
         {
-            if (!users.Any())
+            if (!this.users.Any())
+            {
                 return -1;
+            }
+
             if (!predicates.Any())
+            {
                 return 0;
-            IEnumerable<User> foundEntities = users.Where(user => CheckIfAllPredicatesMatch(user, predicates));
+            }
+                
+            IEnumerable<User> foundEntities = this.users.Where(user => this.CheckIfAllPredicatesMatch(user, predicates));
             return foundEntities.Any() ? foundEntities.First().Id : 0;           
         }
 
         public List<int> SearchForUsers(params IPredicate[] predicates)
         {
-            if (!users.Any())
+            if (!this.users.Any())
+            {
                 return null;
+            }
+
             if (!predicates.Any())
-                return users.Select(user => user.Id).ToList();
-            var foundEntities = users.Where(user => CheckIfAllPredicatesMatch(user, predicates));
+            {
+                return this.users.Select(user => user.Id).ToList();
+            }
+                
+            var foundEntities = this.users.Where(user => this.CheckIfAllPredicatesMatch(user, predicates));
             return foundEntities.Any() ? foundEntities.Select(user => user.Id).ToList() : new List<int>();
         }
         
         public void Delete(User user)
         {
-            users.RemoveAll(x => x.Equals(user));
+            this.users.RemoveAll(x => x.Equals(user));
         }
 
         public void Delete(int id)
         {
-            users.RemoveAll(x => x.Id == id);
+            this.users.RemoveAll(x => x.Id == id);
         }
 
         public int GetUsersCount()
         {
-            return users.Count();
+            return this.users.Count();
         }
 
         public XmlSchema GetSchema()
@@ -121,10 +147,10 @@ namespace UserStorage.Repositories
 
         public void ReadXml(XmlReader reader)
         {
-            users = new List<User>();
+            this.users = new List<User>();
             while (reader.Read())
             {
-                if (reader.Name.Equals("User") && (reader.IsStartElement()))
+                if (reader.Name.Equals("User") && reader.IsStartElement())
                 {
                     User newUser = new User();
                     reader.Read();
@@ -145,19 +171,20 @@ namespace UserStorage.Repositories
                             newVisa.ReadXml(reader);
                             tempVisasList.Add(newVisa);
                         }
+
                         newUser.Visas = tempVisasList.ToArray();
                     }
-                    users.Add(newUser);
+
+                    this.users.Add(newUser);
                 }
             }
-
         }
 
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("Repository");
             writer.WriteStartElement("ArrayOfUser");
-            foreach (var user in users)
+            foreach (var user in this.users)
             {
                 writer.WriteStartElement("User");
                 writer.WriteElementString("Id", user.Id.ToString());
@@ -174,9 +201,11 @@ namespace UserStorage.Repositories
                         visa.WriteXml(writer);
                     }
                 }
+
                 writer.WriteEndElement();
                 writer.WriteEndElement();
             }
+
             writer.WriteEndElement();
             writer.WriteEndElement();
         }
@@ -193,6 +222,7 @@ namespace UserStorage.Repositories
                     break;
                 }
             }
+
             return result;
         }
     }

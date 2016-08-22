@@ -1,7 +1,7 @@
-﻿using System.Runtime.Serialization;
-
-namespace UserStorage.UserEntity
+﻿namespace UserStorage.UserEntity
 {
+    using System.Runtime.Serialization;
+
     [DataContract]
     public enum Gender
     {

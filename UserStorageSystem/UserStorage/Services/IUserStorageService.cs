@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
-using UserStorage.Predicates;
-using UserStorage.UserEntity;
-
-namespace UserStorage.Services
+﻿namespace UserStorage.Services
 {
+    using System.Collections.Generic;
+    using System.ServiceModel;
+    using Predicates;
+    using UserEntity;
+
     [ServiceContract]
     public interface IUserStorageService
     {

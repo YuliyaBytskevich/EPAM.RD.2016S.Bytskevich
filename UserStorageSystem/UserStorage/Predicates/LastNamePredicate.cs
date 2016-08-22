@@ -1,23 +1,23 @@
-﻿using System;
-using System.Runtime.Serialization;
-using UserStorage.UserEntity;
-
-namespace UserStorage.Predicates
+﻿namespace UserStorage.Predicates
 {
+    using System;
+    using System.Runtime.Serialization;
+    using UserEntity;
+
     [Serializable]
     [DataContract]
-    public class LastNamePredicate: IPredicate
+    public class LastNamePredicate : IPredicate
     {
         private readonly string required;
 
         public LastNamePredicate(string requiredName)
         {
-            required = requiredName;
+            this.required = requiredName;
         }
 
         public bool IsMatching(User user)
         {
-            return user.LastName == required;
+            return user.LastName == this.required;
         }
     }
 }

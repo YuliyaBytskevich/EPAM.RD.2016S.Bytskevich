@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Xml.Serialization;
-using UserStorage.IdentifiersGeneration;
-using UserStorage.Predicates;
-using UserStorage.UserEntity;
-using UserStorage.Validation;
-
-namespace UserStorage.Repositories
+﻿namespace UserStorage.Repositories
 {
+    using System.Collections.Generic;
+    using System.Xml.Serialization;
+    using IdentifiersGeneration;
+    using Predicates;
+    using UserEntity;
+    using Validation;
+
     public interface IUserStorage : IXmlSerializable
     {
         int Add(User user, IUserValidation validationRules = null);

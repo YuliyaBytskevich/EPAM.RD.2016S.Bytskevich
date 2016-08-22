@@ -34,6 +34,14 @@
       <HintPath>..\packages\NLog.4.3.5\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="StyleCop, Version=4.7.1000.0, Culture=neutral, PublicKeyToken=f904653c63bc2738, processorArchitecture=MSIL">
+      <HintPath>..\packages\StyleCop.4.7.49.0\lib\net35\StyleCop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StyleCop.CSharp, Version=4.7.1000.0, Culture=neutral, PublicKeyToken=f904653c63bc2738, processorArchitecture=MSIL">
+      <HintPath>..\packages\StyleCop.4.7.49.0\lib\net35\StyleCop.CSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -62,6 +70,7 @@
     <Compile Include="Services\ServiceMessage.cs" />
     <Compile Include="Services\ServiceState.cs" />
     <Compile Include="Services\SlaveService.cs" />
+    <Compile Include="Services\StateObject.cs" />
     <Compile Include="Validation\BelarusianUsersValidation.cs" />
     <Compile Include="UserEntity\Gender.cs" />
     <Compile Include="Services\MasterService.cs" />
